@@ -5,13 +5,13 @@
 # To change this template use File | Settings | File Templates.
 
 @CLASS
-MultiConstraint
+Parsekit/Semver/Constraint/MultiConstraint
 
 @OPTIONS
 locals
 
 @BASE
-ConstraintInterface
+Parsekit/Semver/Constraint/ConstraintInterface
 
 @auto[]
 ###
@@ -31,7 +31,7 @@ ConstraintInterface
 
 
 #------------------------------------------------------------------------------
-#:param provider type ConstraintInterface
+#:param provider type Parsekit/Semver/Constraint/ConstraintInterface
 #
 #:result boolean
 #------------------------------------------------------------------------------

@@ -1,0 +1,22 @@
+{
+  "name": "parsekt/semver",
+  "description": "Semantic versioning tool. Allow parse and compare versions",
+  "type": "library",
+  "keywords": ["semver", "version", "version compare"],
+  "authors": [
+    {
+      "name": "Igor Bodnar",
+      "email": "ibodnar@artlebedev.ru"
+    }
+  ],
+  "require": {
+    "parser":">=3.4.3"
+  },
+  "minimumStability": "dev",
+  "docRoot": "./",
+  "autoload": {
+    "namespace": {
+      "Parsekit/Semver": "src"
+    }
+  }
+}

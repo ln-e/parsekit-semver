@@ -5,7 +5,7 @@
 # To change this template use File | Settings | File Templates.
 
 @CLASS
-Semver
+Parsekit/Semver/Semver
 
 
 
@@ -19,8 +19,8 @@ locals
 #------------------------------------------------------------------------------
 #:constructor
 #
-#:param versionParser type VersionParser
-#:param comparator type Comparator
+#:param versionParser type Parsekit/Semver/VersionParser
+#:param comparator type Parsekit/Semver/Comparator
 #------------------------------------------------------------------------------
 @create[versionParser;comparator]
     $self.versionParser[$versionParser]
@@ -53,7 +53,7 @@ locals
 #------------------------------------------------------------------------------
 @satisfies[version;constraints][result]
 
-    $versionConstraint[^Constraint::create[==;^self.versionParser.normalize[$version]]]
+    $versionConstraint[^Parsekit/Semver/Constraint/Constraint::create[==;^self.versionParser.normalize[$version]]]
 
     $constraints[^self.versionParser.parseConstraints[$constraints]]
 

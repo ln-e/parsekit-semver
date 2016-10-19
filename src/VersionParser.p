@@ -5,7 +5,7 @@
 # To change this template use File | Settings | File Templates.
 
 @CLASS
-VersionParser
+Parsekit/Semver/VersionParser
 
 @OPTIONS
 locals
@@ -104,7 +104,7 @@ $self.parsedConstraints[^hash::create[]]
     ]
 
     ^if(^master.contains[$name]){
-        $result[^VersionParser:normalize[$name]]
+        $result[^Parsekit/Semver/VersionParser:normalize[$name]]
     }{
         ^name.match[^^v?(\d++)(\.(?:\d++|[xX*]))?(\.(?:\d++|[xX*]))?(\.(?:\d++|[xX*]))?^$][i]{
             $version[]
@@ -152,7 +152,7 @@ $self.parsedConstraints[^hash::create[]]
     $version[^version.trim[]]
 
     ^if(!def $version || $version eq ''){
-        ^throw[version.empty;VersionParser.p;Version string is empty]
+        ^throw[version.empty;;Version string is empty]
     }
 
     $fullVersion[$version]
@@ -217,7 +217,7 @@ $self.parsedConstraints[^hash::create[]]
             $matches[^version.match[(.*?)[.-]?dev^$][i]]
 
             ^if(def $matches){
-                $result[^VersionParser:normalizeBranch[$matches.1]]
+                $result[^Parsekit/Semver/Constraint/VersionParser:normalizeBranch[$matches.1]]
             }{
                 $extraMessage[]
                 ^if(^fullVersion.match[ +as +^untaint[regex]{$version}^$][n] > 0){
@@ -226,7 +226,7 @@ $self.parsedConstraints[^hash::create[]]
                     $extraMessage[ in '$fullVersion', the alias source must be an exact version, if it is a branch name you should prefix it with dev-]
                 }
                 $errorText[ Invalid version string '$fullVersion' $extraMessage ]
-                ^throw[UnexpectedValueException;VersionParser.p;$errorText]
+                ^throw[UnexpectedValueException;;$errorText]
             }
 
         }
@@ -235,7 +235,7 @@ $self.parsedConstraints[^hash::create[]]
 
 
     ^if(!def $result){
-        ^throw[UnexpectedValueException;VersionParser.p;Invalid version string $fullVersion]
+        ^throw[UnexpectedValueException;;Invalid version string $fullVersion]
     }{
         $self.normalizedVersions.$fullVersion[$result]
     }
@@ -246,7 +246,7 @@ $self.parsedConstraints[^hash::create[]]
 #------------------------------------------------------------------------------
 #:param constraints type string
 #
-#:result ConstraintInterface
+#:result Parsekit/Semver/Constraint/ConstraintInterface
 #------------------------------------------------------------------------------
 @parseConstraints[constraints]
 ^if(^self.parsedConstraints.contains[$constraints]){
@@ -290,7 +290,7 @@ $self.parsedConstraints[^hash::create[]]
             $constraintObjects[^self.parseConstraint[^andConstraints._at(0)]]
         }
 
-        $constraint[^if(^constraintObjects._count[] == 1){$constraintObjects.0}{^MultiConstraint::create[$constraintObjects]}]
+        $constraint[^if(^constraintObjects._count[] == 1){$constraintObjects.0}{^Parsekit/Semver/Constraint/MultiConstraint::create[$constraintObjects]}]
         $index[^orGroups._count[]]
         $orGroups.$index[$constraint]
     }
@@ -303,23 +303,24 @@ $self.parsedConstraints[^hash::create[]]
         $posB[^b.pos['<'](4)]
     }
 
+    $multiConstraintClassName[Parsekit/Semver/Constraint/MultiConstraint]
     ^if(1 == ^orGroups._count[]){
         $constraint[$orGroups.0]
     }(2 == ^orGroups._count[]
 # parse the two OR groups and if they are contiguous we collapse
 # them into one constraint
-      && $orGroups.0 is MultiConstraint
-      && $orGroups.1 is MultiConstraint
+      && $orGroups.0 is $multiConstraintClassName
+      && $orGroups.1 is $multiConstraintClassName
       && ^a.mid(0;3) eq '[>=' && ($posA != -1)
       && ^b.mid(0;3) eq '[>=' && ($posB != -1)
       && ^a.mid($posA + 2;-1) == ^b.mid(4;$posB - 5)
     ){
-        $constraint[^MultiConstraint::create[
-            $.0[^Constraint::create[>=;^a.mid(4;$posA - 5)]]
-            $.1[^Constraint::create[<;^b.mid($posB + 2;-1)]]
+        $constraint[^Parsekit/Semver/Constraint/MultiConstraint::create[
+            $.0[^Parsekit/Semver/Constraint/Constraint::create[>=;^a.mid(4;$posA - 5)]]
+            $.1[^Parsekit/Semver/Constraint/Constraint::create[<;^b.mid($posB + 2;-1)]]
         ]]
     }{
-        $constraint[^MultiConstraint::create[$orGroups](false)]
+        $constraint[^Parsekit/Semver/Constraint/MultiConstraint::create[$orGroups](false)]
     }
 
     $constraint.prettyString[$prettyConstraint]
@@ -351,7 +352,7 @@ $self.parsedConstraints[^hash::create[]]
 
     ^if(^constraint.match[^^v?[xX*](\.[xX*])*^$][i]){
         $result[
-            $.0[^EmptyConstraint::create[]]
+            $.0[^Parsekit/Semver/Constraint/EmptyConstraint::create[]]
         ]
     }
 
@@ -368,7 +369,7 @@ $self.parsedConstraints[^hash::create[]]
     ^if(!def $result && $matches){
 
         ^if(^constraint.mid(0;2) eq '~>'){
-            ^throw[UnexpectedValue;VersionParser.p;Invalid operator "~>", you probably meant to use the "~" operator]
+            ^throw[UnexpectedValue;;Invalid operator "~>", you probably meant to use the "~" operator]
         }
 
         ^if(def $matches.4 && '' ne $matches.4){
@@ -393,11 +394,11 @@ $self.parsedConstraints[^hash::create[]]
         }
 
         $lowVersion[^self.manipulateVersionString[$matches.fields;$position;0]$stabilitySuffix]
-        $lowerBound[^Constraint::create[>=;$lowVersion]]
+        $lowerBound[^Parsekit/Semver/Constraint/Constraint::create[>=;$lowVersion]]
 
         $highPosition[^if(1 > $position - 1){1}($position-1)]
         $highVersion[^self.manipulateVersionString[$matches.fields;$highPosition;1]-dev]
-        $upperBound[^Constraint::create[<;$highVersion]]
+        $upperBound[^Parsekit/Semver/Constraint/Constraint::create[<;$highVersion]]
 
         $result[
           $.0[$lowerBound]
@@ -431,11 +432,11 @@ $self.parsedConstraints[^hash::create[]]
 
         $tmp[${constraint}$stabilitySuffix]
         $lowVersion[^self.normalize[^tmp.mid(1)]]
-        $lowerBound[^Constraint::create[>=;$lowVersion]]
+        $lowerBound[^Parsekit/Semver/Constraint/Constraint::create[>=;$lowVersion]]
 # For upper bound, we increment the position of one more significance,
 # but highPosition = 0 would be illegal
         $highVersion[^self.manipulateVersionString[$matches.fields;$position;1]-dev]
-        $upperBound[^Constraint::create[<;$highVersion]]
+        $upperBound[^Parsekit/Semver/Constraint/Constraint::create[<;$highVersion]]
 
         $result[
             $.0[$lowerBound]
@@ -464,12 +465,12 @@ $self.parsedConstraints[^hash::create[]]
         $highVersion[^self.manipulateVersionString[$matches.fields;$position;1]-dev]
         ^if($lowVersion eq '0.0.0.0-dev'){
             $result[
-                $.0[^Constraint::create[<;$highVersion]]
+                $.0[^Parsekit/Semver/Constraint/Constraint::create[<;$highVersion]]
             ]
         }{
             $result[
-                $.0[^Constraint::create[>=;$lowVersion]]
-                $.1[^Constraint::create[<;$highVersion]]
+                $.0[^Parsekit/Semver/Constraint/Constraint::create[>=;$lowVersion]]
+                $.1[^Parsekit/Semver/Constraint/Constraint::create[<;$highVersion]]
             ]
         }
     }
@@ -490,11 +491,11 @@ $self.parsedConstraints[^hash::create[]]
             $lowStabilitySuffix[-dev]
         }
         $lowVersion[^self.normalize[$matches.1]]
-        $lowerBound[^Constraint::create[>=;${lowVersion}$lowStabilitySuffix]]
+        $lowerBound[^Parsekit/Semver/Constraint/Constraint::create[>=;${lowVersion}$lowStabilitySuffix]]
 
         ^if((!^self.emptyX[$matches.11] && !^self.emptyX[$matches.12]) || !$matches.14 || !$matches.16){
             $highVersion[^self.normalize[$matches.9]]
-            $upperBound[^Constraint::create[<=;$highVersion]]
+            $upperBound[^Parsekit/Semver/Constraint/Constraint::create[<=;$highVersion]]
         }{
             $highMatch[
                 $.0[]
@@ -505,7 +506,7 @@ $self.parsedConstraints[^hash::create[]]
             ]
             $pos[^if(^self.emptyX[$matches.11]){1}{2}]
             $highVersion[^self.manipulateVersionString[$highMatch;$pos;1]-dev]
-            $upperBound[^Constraint::create[<;$highVersion]]
+            $upperBound[^Parsekit/Semver/Constraint/Constraint::create[<;$highVersion]]
         }
 
         $result[
@@ -535,14 +536,14 @@ $self.parsedConstraints[^hash::create[]]
         }
 
         $result[
-            $.0[^Constraint::create[^if(def $matches.1){$matches.1}{=};$version]]
+            $.0[^Parsekit/Semver/Constraint/Constraint::create[^if(def $matches.1){$matches.1}{=};$version]]
         ]
     }
 
     $message[Could not parse version constraint $constraint]
 
     ^if(!def $result){
-        ^throw[UnexpectedValueException;VersionParser.p;$message]
+        ^throw[UnexpectedValueException;;$message]
     }{
         $self.parsedConstraint.$origin[$result]
     }
@@ -590,7 +591,7 @@ $self.parsedConstraints[^hash::create[]]
                 $position($position - 1)
 
                 ^if($i == 1){
-                    ^throw[CarryOverflowException;versionparser.p;carry overflow]
+                    ^throw[CarryOverflowException;;carry overflow]
                 }
             }
         }

@@ -5,7 +5,7 @@
 # To change this template use File | Settings | File Templates.
 
 @CLASS
-Comparator
+Parsekit/Semver/Comparator
 
 @OPTIONS
 locals
@@ -95,6 +95,6 @@ locals
 #:result boolean
 #------------------------------------------------------------------------------
 @compare[version1;operator;version2][result]
-    $constraint[^Constraint::create[$operator;$version2]]
-    $result(^constraint.matches[^Constraint::create[==;$version1]])
+    $constraint[^Parsekit/Semver/Constraint/Constraint::create[$operator;$version2]]
+    $result(^constraint.matches[^Parsekit/Semver/Constraint/Constraint::create[==;$version1]])
 ###

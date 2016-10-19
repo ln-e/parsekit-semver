@@ -5,13 +5,13 @@
 # To change this template use File | Settings | File Templates.
 
 @CLASS
-Constraint
+Parsekit/Semver/Constraint/Constraint
 
 @OPTIONS
 locals
 
 @BASE
-ConstraintInterface
+Parsekit/Semver/Constraint/ConstraintInterface
 
 @auto[]
     $self.OP_EQ(0)
@@ -75,12 +75,13 @@ ConstraintInterface
 
 
 #------------------------------------------------------------------------------
-#:param provider type ConstraintInterface
+#:param provider type Parsekit/Semver/Constraint/ConstraintInterface
 #
 #:result boolean
 #------------------------------------------------------------------------------
 @matches[provider][result]
-    ^if($provider is Constraint){
+    $className[Parsekit/Semver/Constraint/Constraint]
+    ^if($provider is $className){
         $result[^self.matchSpecific[$provider]]
     }{
         $result[^provider.matches[$self]]
