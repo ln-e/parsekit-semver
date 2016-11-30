@@ -1,5 +1,5 @@
 {
-  "name": "parsekt/semver",
+  "name": "parsekit/semver",
   "description": "Semantic versioning tool. Allow parse and compare versions",
   "type": "library",
   "keywords": ["semver", "version", "version compare"],
